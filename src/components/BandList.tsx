@@ -1,29 +1,74 @@
-import React from 'react'
+import { useState, useEffect } from 'react';
+import { BandProps, IBand } from '../interfaces';
 
-export const BandList = () => {
 
+
+export const BandList = ({ data,castVotes,deleteBand,changeBandName }:BandProps) => {
+
+    const [bands, setBands] = useState(data);
+
+useEffect(()=>{
+setBands( data )
+},[ data ])
+
+const changeName = (event:any, id:string)=>{
+
+ const newName = (event.target.value);
+
+ const band  = setBands( (bands:IBand[])=> bands.map((band:IBand)=>{
+  if( band.id === id ){
+      band.name = newName;
+  }
+  return band;
+ }) )
+
+ 
+ 
+}
+
+const lostFocus = ( id:string,name:string ) =>{
+    console.log({ id,name })
+    changeBandName( id, name )
+
+}
 const createRows = () =>{
     return(
+        
         <>
-        <h3>Bandas Actuales</h3>
-        <tr>
+      {
+        bands.map( (band:any)=>(
+        <tr key={band.id} >
             <td>
-                <button className='btn btn-primary' >+1</button>
+                <button 
+                className='btn btn-primary' 
+                onClick={ ()=> castVotes(band.id) }
+                >+1</button>
             </td>
             <td>
                 <input type="text" 
-                className='form-control'/>
+                value={band.name}
+                className='form-control'
+                onChange={ (event)=>changeName(event,band.id) }
+                onBlur={ ()=>lostFocus( band.id,band.name ) }
+                />
             </td>
-            <td><h3>15</h3></td>
+            <td><h3>{ band.votes }</h3></td>
             <td>
-                <button className='btn btn-danger' >Borrar</button>
+                <button 
+                className='btn btn-danger' 
+                onClick={()=>deleteBand(band.id)}
+                >Borrar</button>
             </td>
         </tr>
+
+        )  )
+      }
         </>    
     )
 }    
   return (
     <>
+      <h3>Bandas Actuales</h3> 
     <table className='table table-stripped' >
         <thead>
             <tr>
