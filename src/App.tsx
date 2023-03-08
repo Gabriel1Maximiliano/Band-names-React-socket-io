@@ -1,37 +1,20 @@
 import { AddBand, BandList } from "./components";
 import { useEffect, useState } from "react";
-import io from "socket.io-client";
+
 import { IBand } from "./interfaces";
+import { useSockets } from "./hooks";
 
-const connectSocketServer = () => {
-  const socket = io("http://localhost:3000", {
-    transports: ["websocket"],
-  });
+const serverPath = 'http://localhost:3000';
 
-  return socket;
-};
+
 const App = () => {
-
-  const [onLine, setOnLine] = useState<boolean>(false);
+  
+  const { socket,onLine } = useSockets({serverPath});
+  
   const [bands, setBands] = useState<any>([]);
-  const [socket] = useState<any>(connectSocketServer());
+  
 
-  useEffect(() => {
-    
-    setOnLine(socket.connected);
-  }, [socket]);
 
-  useEffect(() => {
-    socket.on("connect", () => {
-      setOnLine(true);
-    });
-  }, [socket]);
-
-  useEffect(() => {
-    socket.on("disconnect", () => {
-      setOnLine(false);
-    });
-  }, [socket]);
 
   useEffect(() => {
     socket.on('current-bands', ( bands:IBand[] ) => {
@@ -57,7 +40,7 @@ const App = () => {
   }
 
   const createBand = (name :string) =>{
-    socket.emit('create-new-band', name)
+    socket.emit('create-new-band', {name})
   }
 
   return (
